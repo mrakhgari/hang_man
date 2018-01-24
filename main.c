@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <string.h>
 #include <time.h>
-
+void topic_generator(char * playername);
 int num_word,subject;
 struct final_score
 {
@@ -453,7 +453,12 @@ char* choosetopic(char * playername,int is_null)
     int i,j;
     fflush(stdin);
     char c;
-    FILE* topicfile=fopen(".\\TOPICS\\AVAILABLE_TOPICS.txt","r");
+    char str[50]={".\\"};
+    strcat(str,playername);
+    strcat(str,"\\AVAILABLE_TOPICS.txt");
+    FILE* topicfile=fopen(str,"r");
+    if(topicfile==NULL)
+        exit(-1);
     for(i=0;; i++)
     {
         printf("%d ->",i+1);
@@ -461,15 +466,11 @@ char* choosetopic(char * playername,int is_null)
         {
             c=getc(topicfile);
             if(c=='.'||c==EOF)
-            {
                 break;
-            }
             printf("%c",c);
         }
         for(j=0; j<=3; j++)
-        {
             getc(topicfile);
-        }
         printf("\n");
         if(feof(topicfile))
             break;
@@ -491,11 +492,11 @@ char* choosetopic(char * playername,int is_null)
                 }
                 save[j].name[k]=c;
             }
+             save[j].score=0;
             c=getc(topicfile);
             c=getc(topicfile);
             c=getc(topicfile);
             c=getc(topicfile);
-            save[j].score=0;
         }
         fseek(topicfile,0,SEEK_SET);
         char str[50]={".\\"};
@@ -506,16 +507,16 @@ char* choosetopic(char * playername,int is_null)
         fclose(ffile);
     }
     SetConsoleTextAttribute(hConsole, 11);
-    char mozo;
-    scanf("%c",&mozo);
-    if(mozo=='Q')
+    char mozo[2];
+    scanf("%s",mozo);
+    if(mozo[0]=='Q')
     {
         printf("Good Luck!!!");
         SetConsoleTextAttribute(hConsole, 15);
         exit(-1);
     }
-    subject=mozo-48;
-    if(subject>i||subject<1)
+    subject=atoi(mozo);
+    if(subject>i+1||subject<1)
     {
         printf("Invalid Input!!!");
         exit(-1);
@@ -546,6 +547,7 @@ char* choosetopic(char * playername,int is_null)
         }
     }
     fclose(topicfile);
+    printf(" ");
     startgame(playername,sub);
 }
 
@@ -686,6 +688,18 @@ int main()
 {
     char playername[20];
     int item;
+   /* FILE * ff=fopen(".\\TOPICS\\AVAILABLE_TOPICS.txt","r");
+    char c;
+    while(1)
+    {
+        c=getc(ff);
+        if(c==EOF)
+            break;
+        else if(c==10)
+            printf("    %d \n",c);
+        else
+        printf("%d ",c);
+    }*/
     HANDLE  hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, 15);
@@ -698,7 +712,7 @@ int main()
     Sleep(1500);
     system("cls");
     printf("Choose one item\n");
-    printf("1 -> New game\n2 -> Resume game\n");
+    printf("1 -> New game\n2 -> Resume game\n3 -> Topic generator\n");
     SetConsoleTextAttribute(hConsole, 11);
     scanf("%d",&item);
     SetConsoleTextAttribute(hConsole, 15);
@@ -727,8 +741,41 @@ int main()
     {
        resumegame(playername);
     }
+    else if(item==3)
+    {
+        topic_generator(playername);
+    }
     else
         printf("Invalid Input!!!");
     return 0;
 }
-
+void topic_generator(char * playername)
+{
+    printf("Please enter your topic name:\n");
+    char topic[50];
+    char str[60]={".\\TOPICS\\"};
+    scanf("%s",topic);
+   // char c=10;
+    strcat(topic,".txt\0");
+    FILE * file=fopen(".\\TOPICS\\AVAILABLE_TOPICS.txt","a");
+    if(file==NULL)
+        exit(-1);
+    putc('\n',file);
+    fprintf(file,"%s",topic);
+    fclose(file);
+    strcat(str,topic);
+    FILE * ff=fopen(str,"w");
+    char word[50]={0};
+    printf("Please enter topics word (word should be ......)\n");
+    while(1)
+    {
+        scanf("%s",word);
+        if(word[0]=='Q')
+        {
+            break;
+        }
+        fprintf(ff,"%s",word);
+        putc(' ',ff);
+    }
+fclose(ff);
+}
